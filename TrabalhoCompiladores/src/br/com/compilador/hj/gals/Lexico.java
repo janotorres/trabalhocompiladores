@@ -29,6 +29,7 @@ public class Lexico implements Constants {
 		position = pos;
 	}
 
+
 	public Token nextToken() throws LexicalError {
 		if (!hasInput())
 			return null;
@@ -40,9 +41,11 @@ public class Lexico implements Constants {
 		int endState = -1;
 		int end = -1;
 
+		char simbolo = ' ';
 		while (hasInput()) {
 			lastState = state;
-			state = nextState(nextChar(), state);
+			simbolo = nextChar();
+			state = nextState(simbolo, state);
 
 			if (state < 0)
 				break;
@@ -56,7 +59,12 @@ public class Lexico implements Constants {
 		}
 		if (endState < 0
 				|| (endState != state && tokenForState(lastState) == -2))
-			throw new LexicalError(SCANNER_ERROR[lastState], start);
+		{
+			if(lastState == 0)
+				throw new LexicalError(simbolo + " " + SCANNER_ERROR_CUSTOMIZED[lastState], start);
+			else
+				throw new LexicalError(SCANNER_ERROR_CUSTOMIZED[lastState], start);
+		}
 
 		position = end;
 
@@ -76,11 +84,11 @@ public class Lexico implements Constants {
 				classe = TOKEN_STATE_KEYS[Arrays.asList(TOKEN_STATE).indexOf(
 						token)];
 			}
-						
+
 			return new Token(classe, lexeme, start);
 		}
 	}
-
+	
 	private int nextState(char c, int state) {
 		int start = SCANNER_TABLE_INDEXES[state];
 		int end = SCANNER_TABLE_INDEXES[state + 1] - 1;

@@ -195,11 +195,9 @@ public class JInterfaceCompilador extends JFrame {
 							+ t.getClasse() + "	"
 							+ t.getLexeme() + "\n");
 				}
-				jAreaMensagens.setText(jAreaMensagens.getText() + "\n"
-						+ "programa compilado com sucesso");
+				jAreaMensagens.setText(jAreaMensagens.getText() + "\n programa compilado com sucesso");
 			} catch (LexicalError error) {
-				jAreaMensagens.setText(error.getMessage() + " em "
-						+ error.getPosition());
+				jAreaMensagens.setText("Erro na linha tal - " + error.getMessage());
 			}
 		}
 	}

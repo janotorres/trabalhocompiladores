@@ -229,15 +229,15 @@ public interface ScannerConstants {
 			"", "Erro identificando float", "", "", "Erro identificando float",
 			"", "" };
 	
-	String SCANNER_ERROR_CUSTOMIZED[] = { "Caractere não esperado", "", "",
-			"Erro identificando string", "", "Erro identificando \"&&\"", "",
+	String SCANNER_ERROR_CUSTOMIZED[] = { "símbolo inválido", "", "",
+			"string não finalizada", "", "Erro identificando \"&&\"", "",
 			"", "", "", "", "", "", "", "", "", "", "", "", "",
-			"Erro identificando identificador", "Erro identificando <ignorar>",
-			"Erro identificando \"||\"", "", "", "Erro identificando string",
-			"", "Erro identificando float", "", "", "", "",
-			"Erro identificando identificador", "", "",
-			"Erro identificando float", "", "", "Erro identificando float", "",
-			"", "Erro identificando float", "", "", "Erro identificando float",
+			"identificador inválido", "comentário de bloco não finalizado",
+			"Erro identificando \"||\"", "", "", "string inválida",
+			"", "float inválido", "", "", "", "",
+			"identificador inválido", "", "",
+			"float inválido", "", "", "float inválido", "",
+			"", "float inválido", "", "", "float inválido",
 			"", "" };
 
 }
