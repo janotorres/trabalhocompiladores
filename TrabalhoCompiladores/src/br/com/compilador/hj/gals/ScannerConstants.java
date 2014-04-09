@@ -202,9 +202,9 @@ public interface ScannerConstants {
 			-1, 0, 12, -1, 4, 3, -1, 4, 3, -1, 4, 3, -1, 4, 4 };
 	
 	String TOKEN_STATE_KEYS[] = {"-2", "EPSILON", "!", "-1", "EPSILON", "-1", "(", ")",
-	"*", "+", ",", "-", "/", "integer", "integer", ";", "<", "=", ">", "identificador", "-1", "-2",
-	"-1", "!=", "string", "-1", "&&", "-1", "integer", "<=", "==", ">=", "-1", "EPSILON", "||", "-1",
-	"float", "integer", "-1", "float", "integer", "-1", "float", "integer", "-1", "float", "float"			
+	"*", "+", ",", "-", "/", "constante inteira", "constante inteira", ";", "<", "=", ">", "identificador", "-1", "-2",
+	"-1", "!=", "constante literal", "-1", "&&", "-1", "constante inteira", "<=", "==", ">=", "-1", "EPSILON", "||", "-1",
+	"constante real", "constante inteira", "-1", "constante real", "constante inteira", "-1", "constante real", "constante inteira", "-1", "constante real", "constante real"			
 	};
 
 	int[] SPECIAL_CASES_INDEXES = { 0, 0, 0, 16, 16, 16, 16, 16, 16, 16, 16,
@@ -230,14 +230,14 @@ public interface ScannerConstants {
 			"", "" };
 	
 	String SCANNER_ERROR_CUSTOMIZED[] = { "símbolo inválido", "", "",
-			"string não finalizada", "", "Erro identificando \"&&\"", "",
+			"constante literal não finalizada", "", "Erro identificando \"&&\"", "",
 			"", "", "", "", "", "", "", "", "", "", "", "", "",
 			"identificador inválido", "comentário de bloco não finalizado",
-			"Erro identificando \"||\"", "", "", "string inválida",
-			"", "float inválido", "", "", "", "",
+			"Erro identificando \"||\"", "", "", "constante literal inválida",
+			"", "constante real inválida", "", "", "", "",
 			"identificador inválido", "", "",
-			"float inválido", "", "", "float inválido", "",
-			"", "float inválido", "", "", "float inválido",
+			"constante real inválida", "", "", "constante real inválida", "",
+			"", "constante real inválida", "", "", "constante real inválida",
 			"", "" };
 
 }

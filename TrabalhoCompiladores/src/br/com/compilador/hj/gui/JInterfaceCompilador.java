@@ -179,7 +179,8 @@ public class JInterfaceCompilador extends JFrame {
 	}
 
 	private void compilarClicked(ActionEvent e) {
-		if (jAreaMensagens.getText() == null || jAreaMensagens.getText() == "") {
+		String programaParaCompilar = jAreaMensagens.getText();
+		if (programaParaCompilar.equals(null) || programaParaCompilar.equals("")) {
 			jAreaMensagens.setText("nenhum programa para compilar");
 		} else {
 			Lexico lexico = new Lexico();
