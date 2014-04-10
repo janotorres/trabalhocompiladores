@@ -24,6 +24,7 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -193,8 +194,8 @@ public class JInterfaceCompilador extends JFrame {
 	}
 
 	private void compilarClicked(ActionEvent e) {
-		String programaParaCompilar = jAreaMensagens.getText();
-		if (programaParaCompilar.equals(null) || programaParaCompilar.equals("")) {
+		String programaParaCompilar = jEditor.getText();
+		if (programaParaCompilar == null || programaParaCompilar.trim().equals("")) {
 			jAreaMensagens.setText("nenhum programa para compilar");
 		} else {
 			Lexico lexico = new Lexico();
