@@ -1,16 +1,20 @@
 package br.com.compilador.hj.gals;
 
-import java.awt.font.NumericShaper;
 import java.util.Arrays;
-import java.util.List;
-
-import br.com.compilador.hj.util.NumberedBorder;
 
 public class Lexico implements Constants {
 
 	private int position;
 
 	private String input;
+
+	private int linha = 1;
+	
+	private int linhaBlocoComentario = 1;
+
+	private int lastPositionQuebraLinha;
+	
+	private int lastStateGlobal;
 
 	public Lexico() {
 		this("");
@@ -35,8 +39,8 @@ public class Lexico implements Constants {
 			return null;
 
 		int start = position;
-
 		int state = 0;
+		
 		int lastState = 0;
 		int endState = -1;
 		int end = -1;
@@ -46,7 +50,7 @@ public class Lexico implements Constants {
 			lastState = state;
 			simbolo = nextChar();
 			state = nextState(simbolo, state);
-
+			lastStateGlobal =  state;
 			if (state < 0)
 				break;
 
@@ -61,9 +65,10 @@ public class Lexico implements Constants {
 				|| (endState != state && tokenForState(lastState) == -2))
 		{
 			if(lastState == 0)
-				throw new LexicalError(simbolo + " " + SCANNER_ERROR_CUSTOMIZED[lastState], start);
+				throw new LexicalError("Erro na linha " + linha + " - " + simbolo + " " + SCANNER_ERROR_CUSTOMIZED[lastState], start);
 			else
-				throw new LexicalError(SCANNER_ERROR_CUSTOMIZED[lastState], start);
+				
+				throw new LexicalError("Erro na linha " + (lastState == 21 ? linhaBlocoComentario : linha )+ " - "+ SCANNER_ERROR_CUSTOMIZED[lastState], start);
 		}
 
 		position = end;
@@ -85,17 +90,17 @@ public class Lexico implements Constants {
 						token)];
 			}
 
-			return new Token(classe, lexeme, start);
+			return new Token(classe, lexeme, lastPositionQuebraLinha < position ? linha : linha -1 );
 		}
 	}
 	
 	private int nextState(char c, int state) {
 		int start = SCANNER_TABLE_INDEXES[state];
 		int end = SCANNER_TABLE_INDEXES[state + 1] - 1;
-
+		
 		while (start <= end) {
-			int half = (start + end) / 2;
-
+			int half = (start + end) / 2;			
+			
 			if (SCANNER_TABLE[half][0] == c)
 				return SCANNER_TABLE[half][1];
 			else if (SCANNER_TABLE[half][0] < c)
@@ -142,9 +147,18 @@ public class Lexico implements Constants {
 	}
 
 	private char nextChar() {
-		if (hasInput())
-			return input.charAt(position++);
-		else
+		if (hasInput()){
+			char c = input.charAt(position++);
+			if (c == '\n' && lastPositionQuebraLinha < position){
+				lastPositionQuebraLinha = position;
+				linha++;
+				if (lastStateGlobal != 21)
+					linhaBlocoComentario++;
+				
+			}
+			return c;
+		} else {
 			return (char) -1;
+		}
 	}
 }

@@ -4,12 +4,14 @@
 
 package br.com.compilador.hj.gui;
 
-import java.awt.*;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,22 +20,33 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 
-import br.com.compilador.hj.gals.Constants;
 import br.com.compilador.hj.gals.LexicalError;
 import br.com.compilador.hj.gals.Lexico;
 import br.com.compilador.hj.gals.Token;
 import br.com.compilador.hj.util.NumberedBorder;
 
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import com.jgoodies.forms.factories.CC;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * @author Heloisa Kopsch
  */
 public class JInterfaceCompilador extends JFrame {
 	
+	private static final long serialVersionUID = 1L;
 	NumberedBorder numberBorder = new NumberedBorder();
 	
 	public JInterfaceCompilador() {
@@ -54,6 +67,7 @@ public class JInterfaceCompilador extends JFrame {
 		button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
 				KeyStroke.getKeyStroke(tecla), "evento");
 		button.getActionMap().put("evento", new AbstractAction() {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -188,21 +202,29 @@ public class JInterfaceCompilador extends JFrame {
 
 			try {
 				Token t = null;
-				jAreaMensagens.setText("linha classe lexema" + "\n");
+				jAreaMensagens.setText(fillBlank("linha",20) + "  " + fillBlank("classe",20) + "	"+fillBlank("lexema",20) + "\n");
 							
 				while ((t = lexico.nextToken()) != null) {
 					jAreaMensagens.setText(jAreaMensagens.getText()
-							+ t.getPosition() + " " 
-							+ t.getClasse() + "	"
-							+ t.getLexeme() + "\n");
+							+  fillBlank(t.getPosition(),20) + "  " 
+							+  fillBlank(t.getClasse(),20) + "	"
+							+ fillBlank(t.getLexeme(),20) + "\n");
 				}
 				jAreaMensagens.setText(jAreaMensagens.getText() + "\n programa compilado com sucesso");
 			} catch (LexicalError error) {
-				jAreaMensagens.setText("Erro na linha tal - " + error.getMessage());
+				jAreaMensagens.setText(error.getMessage());
 			}
 		}
 	}
 
+	private String fillBlank(Object obj, int size){
+		String string = obj.toString();
+		for (int i = 0; i < size - string.length(); i++) {
+			string += " ";
+		}
+		return string;
+	}
+	
 	private void gerarCodigoClicked(ActionEvent e) {
 		jAreaMensagens.setText(" geração de código ainda não foi implementada");
 	}
