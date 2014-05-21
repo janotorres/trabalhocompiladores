@@ -34,8 +34,13 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import br.com.compilador.hj.gals.LexicalError;
 import br.com.compilador.hj.gals.Lexico;
+import br.com.compilador.hj.gals.SemanticError;
+import br.com.compilador.hj.gals.Semantico;
+import br.com.compilador.hj.gals.Sintatico;
+import br.com.compilador.hj.gals.SyntaticError;
 import br.com.compilador.hj.gals.Token;
 import br.com.compilador.hj.util.NumberedBorder;
 
@@ -46,12 +51,12 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author Heloisa Kopsch
  */
 public class JInterfaceCompilador extends JFrame {
-	
+
 	private static final long serialVersionUID = 1L;
 	NumberedBorder numberBorder = new NumberedBorder();
-	
+
 	public JInterfaceCompilador() {
-		initComponents();		
+		initComponents();
 		this.jEditor.setBorder(numberBorder);
 		criarTeclaDeAtalho(jNovo, "control N");
 		criarTeclaDeAtalho(jAbrir, "control A");
@@ -195,37 +200,49 @@ public class JInterfaceCompilador extends JFrame {
 
 	private void compilarClicked(ActionEvent e) {
 		String programaParaCompilar = jEditor.getText();
-		if (programaParaCompilar == null || programaParaCompilar.trim().equals("")) {
+		if (programaParaCompilar == null
+				|| programaParaCompilar.trim().equals("")) {
 			jAreaMensagens.setText("nenhum programa para compilar");
 		} else {
 			Lexico lexico = new Lexico();
+			Sintatico sintatico = new Sintatico();
+			Semantico semantico = new Semantico();
 			lexico.setInput(jEditor.getText());
 
 			try {
-				Token t = null;
-				jAreaMensagens.setText(fillBlank("linha",20) + "  " + fillBlank("classe",20) + "	"+fillBlank("lexema",20) + "\n");
-							
-				while ((t = lexico.nextToken()) != null) {
-					jAreaMensagens.setText(jAreaMensagens.getText()
-							+  fillBlank(t.getPosition(),20) + "  " 
-							+  fillBlank(t.getClasse(),20) + "	"
-							+ fillBlank(t.getLexeme(),20) + "\n");
-				}
-				jAreaMensagens.setText(jAreaMensagens.getText() + "\n programa compilado com sucesso");
+				sintatico.parse(lexico, semantico);
+				/*
+				 * Token t = null; jAreaMensagens.setText(fillBlank("linha",20)
+				 * + "  " + fillBlank("classe",20) + "	"+fillBlank("lexema",20)
+				 * + "\n");
+				 * 
+				 * while ((t = lexico.nextToken()) != null) {
+				 * jAreaMensagens.setText(jAreaMensagens.getText() +
+				 * fillBlank(t.getPosition(),20) + "  " +
+				 * fillBlank(t.getClasse(),20) + "	" +
+				 * fillBlank(t.getLexeme(),20) + "\n"); }
+				 */
+
+				jAreaMensagens.setText(jAreaMensagens.getText()
+						+ "\n programa compilado com sucesso");
 			} catch (LexicalError error) {
 				jAreaMensagens.setText(error.getMessage());
+			} catch (SyntaticError error) {
+				jAreaMensagens.setText(error.getMessage());
+			} catch (SemanticError error) {
+				throw new NotImplementedException();
 			}
 		}
 	}
 
-	private String fillBlank(Object obj, int size){
+	private String fillBlank(Object obj, int size) {
 		String string = obj.toString();
 		for (int i = 0; i < size - string.length(); i++) {
 			string += " ";
 		}
 		return string;
 	}
-	
+
 	private void gerarCodigoClicked(ActionEvent e) {
 		jAreaMensagens.setText(" geração de código ainda não foi implementada");
 	}
@@ -254,17 +271,17 @@ public class JInterfaceCompilador extends JFrame {
 		jAreaMensagens = new JTextArea();
 		jBarraStatus = new JLabel();
 
-		//======== this ========
+		// ======== this ========
 		setTitle("Compilador");
 		setMinimumSize(new Dimension(1200, 500));
 		Container contentPane = getContentPane();
-		contentPane.setLayout(new FormLayout(
-			"9*(min:grow)",
-			"fill:50dlu, fill:89dlu:grow, bottom:65dlu, bottom:default"));
+		contentPane.setLayout(new FormLayout("9*(min:grow)",
+				"fill:50dlu, fill:89dlu:grow, bottom:65dlu, bottom:default"));
 
-		//---- jNovo ----
+		// ---- jNovo ----
 		jNovo.setText("novo [ctrl-n]");
-		jNovo.setIcon(new ImageIcon(getClass().getResource("/compilador/new.png")));
+		jNovo.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/new.png")));
 		jNovo.setHorizontalTextPosition(SwingConstants.CENTER);
 		jNovo.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jNovo.addActionListener(new ActionListener() {
@@ -275,9 +292,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jNovo, CC.xy(1, 1));
 
-		//---- jGerarCodigo ----
+		// ---- jGerarCodigo ----
 		jGerarCodigo.setText("gerar c\u00f3digo [F9]");
-		jGerarCodigo.setIcon(new ImageIcon(getClass().getResource("/compilador/generateCode.png")));
+		jGerarCodigo.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/generateCode.png")));
 		jGerarCodigo.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jGerarCodigo.setHorizontalTextPosition(SwingConstants.CENTER);
 		jGerarCodigo.addActionListener(new ActionListener() {
@@ -288,9 +306,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jGerarCodigo, CC.xy(8, 1));
 
-		//---- jColar ----
+		// ---- jColar ----
 		jColar.setText("colar [ctrl-v]");
-		jColar.setIcon(new ImageIcon(getClass().getResource("/compilador/paste.png")));
+		jColar.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/paste.png")));
 		jColar.setHorizontalTextPosition(SwingConstants.CENTER);
 		jColar.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jColar.addActionListener(new ActionListener() {
@@ -301,9 +320,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jColar, CC.xy(5, 1));
 
-		//---- jCopiar ----
+		// ---- jCopiar ----
 		jCopiar.setText("copiar [ctrl-c]");
-		jCopiar.setIcon(new ImageIcon(getClass().getResource("/compilador/copy.png")));
+		jCopiar.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/copy.png")));
 		jCopiar.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jCopiar.setHorizontalTextPosition(SwingConstants.CENTER);
 		jCopiar.addActionListener(new ActionListener() {
@@ -314,9 +334,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jCopiar, CC.xy(4, 1));
 
-		//---- jRecortar ----
+		// ---- jRecortar ----
 		jRecortar.setText("recortar [ctrl-x]");
-		jRecortar.setIcon(new ImageIcon(getClass().getResource("/compilador/cut.png")));
+		jRecortar.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/cut.png")));
 		jRecortar.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jRecortar.setHorizontalTextPosition(SwingConstants.CENTER);
 		jRecortar.addActionListener(new ActionListener() {
@@ -327,9 +348,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jRecortar, CC.xy(6, 1));
 
-		//---- jEquipe ----
+		// ---- jEquipe ----
 		jEquipe.setText("equipe [F1]");
-		jEquipe.setIcon(new ImageIcon(getClass().getResource("/compilador/team.png")));
+		jEquipe.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/team.png")));
 		jEquipe.setHorizontalTextPosition(SwingConstants.CENTER);
 		jEquipe.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jEquipe.addActionListener(new ActionListener() {
@@ -340,9 +362,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jEquipe, CC.xy(9, 1));
 
-		//---- jCompilar ----
+		// ---- jCompilar ----
 		jCompilar.setText("compilar [F8]");
-		jCompilar.setIcon(new ImageIcon(getClass().getResource("/compilador/compile.png")));
+		jCompilar.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/compile.png")));
 		jCompilar.setHorizontalTextPosition(SwingConstants.CENTER);
 		jCompilar.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jCompilar.addActionListener(new ActionListener() {
@@ -353,9 +376,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jCompilar, CC.xy(7, 1));
 
-		//---- jAbrir ----
+		// ---- jAbrir ----
 		jAbrir.setText("abril [ctrl-a]");
-		jAbrir.setIcon(new ImageIcon(getClass().getResource("/compilador/open.png")));
+		jAbrir.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/open.png")));
 		jAbrir.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jAbrir.setHorizontalTextPosition(SwingConstants.CENTER);
 		jAbrir.addActionListener(new ActionListener() {
@@ -366,9 +390,10 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jAbrir, CC.xy(2, 1));
 
-		//---- jSalvar ----
+		// ---- jSalvar ----
 		jSalvar.setText("salvar [ctrl-s]");
-		jSalvar.setIcon(new ImageIcon(getClass().getResource("/compilador/save.png")));
+		jSalvar.setIcon(new ImageIcon(getClass().getResource(
+				"/compilador/save.png")));
 		jSalvar.setHorizontalTextPosition(SwingConstants.CENTER);
 		jSalvar.setVerticalTextPosition(SwingConstants.BOTTOM);
 		jSalvar.addActionListener(new ActionListener() {
@@ -379,32 +404,36 @@ public class JInterfaceCompilador extends JFrame {
 		});
 		contentPane.add(jSalvar, CC.xy(3, 1));
 
-		//======== scrollPane1 ========
+		// ======== scrollPane1 ========
 		{
-			scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-			scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+			scrollPane1
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+			scrollPane1
+					.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 			scrollPane1.setMinimumSize(new Dimension(23, 150));
 			scrollPane1.setPreferredSize(new Dimension(31, 150));
 			scrollPane1.setViewportView(jEditor);
 		}
 		contentPane.add(scrollPane1, CC.xywh(1, 2, 9, 1));
 
-		//======== scrollPane2 ========
+		// ======== scrollPane2 ========
 		{
-			scrollPane2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-			scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+			scrollPane2
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+			scrollPane2
+					.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 			scrollPane2.setMinimumSize(new Dimension(23, 100));
 			scrollPane2.setPreferredSize(new Dimension(23, 100));
 			scrollPane2.setAutoscrolls(true);
 
-			//---- jAreaMensagens ----
+			// ---- jAreaMensagens ----
 			jAreaMensagens.setEditable(false);
 			jAreaMensagens.setColumns(3);
 			scrollPane2.setViewportView(jAreaMensagens);
 		}
 		contentPane.add(scrollPane2, CC.xywh(1, 3, 9, 1));
 
-		//---- jBarraStatus ----
+		// ---- jBarraStatus ----
 		jBarraStatus.setText("  N\u00e3o modificado");
 		jBarraStatus.setFocusCycleRoot(true);
 		jBarraStatus.setHorizontalAlignment(SwingConstants.CENTER);

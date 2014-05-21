@@ -90,7 +90,7 @@ public class Lexico implements Constants {
 						token)];
 			}
 
-			return new Token(classe, lexeme, lastPositionQuebraLinha < position ? linha : linha -1 );
+			return new Token(token, classe, lexeme, lastPositionQuebraLinha < position ? linha : linha -1 );
 		}
 	}
 	
