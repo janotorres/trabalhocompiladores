@@ -32,6 +32,12 @@ public class Sintatico implements Constants {
 		int x = ((Integer) stack.pop()).intValue();
 		int a = currentToken.getId();
 
+		String lexeme = "";
+		if(currentToken.getId() == 2 || currentToken.getId() == 3 || currentToken.getId() == 4)
+		{
+			lexeme = " (" + currentToken.getLexeme() + ") ";
+		}
+		
 		if (x == EPSILON) {
 			return false;
 		} else if (isTerminal(x)) {
@@ -44,14 +50,14 @@ public class Sintatico implements Constants {
 					return false;
 				}
 			} else {
-				throw new SyntaticError(PARSER_ERROR[x],
+				throw new SyntaticError("Erro na linha " + currentToken.getLine() + " - Encontrado " + currentToken.getClasse() + lexeme + ". " + PARSER_ERROR[x],
 						currentToken.getPosition());
 			}
 		} else if (isNonTerminal(x)) {
 			if (pushProduction(x, a))
 				return false;
 			else
-				throw new SyntaticError(PARSER_ERROR[x],
+				throw new SyntaticError("Erro na linha " + currentToken.getLine() + " - Encontrado " + currentToken.getClasse() + lexeme + ". " + PARSER_ERROR[x],
 						currentToken.getPosition());
 		} else // isSemanticAction(x)
 		{

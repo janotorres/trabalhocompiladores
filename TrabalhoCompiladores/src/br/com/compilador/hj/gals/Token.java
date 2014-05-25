@@ -9,6 +9,8 @@ public class Token {
 	private String lexeme;
 	
 	private int position;
+	
+	private int line;
 
 	public Token(int id, String classe, String lexeme, int position) {
 		this.classe = classe;
@@ -32,7 +34,15 @@ public class Token {
 	public final int getPosition() {
 		return position;
 	}
+	
+	public final int getLine() {
+		return line;
+	}
 
+	public void setLine(int lineNumber) {
+		line = lineNumber;
+	}
+	
 	public String toString() {
 		return classe + " ( " + lexeme + " ) @ " + position;
 	};
