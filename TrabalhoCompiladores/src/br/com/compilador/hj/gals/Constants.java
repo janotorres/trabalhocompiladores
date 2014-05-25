@@ -46,5 +46,4 @@ public interface Constants extends ScannerConstants, ParserConstants {
 	int t_local = 40;
 	int t_global = 41;
 	int t_return = 42;
-
 }

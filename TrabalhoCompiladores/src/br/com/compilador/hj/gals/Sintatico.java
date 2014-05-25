@@ -20,13 +20,18 @@ public class Sintatico implements Constants {
 	}
 
 	private boolean step() throws LexicalError, SyntaticError, SemanticError {
+		int line =1;
 		if (currentToken == null) {
 			int pos = 0;
 			if (previousToken != null)
+			{
 				pos = previousToken.getPosition()
 						+ previousToken.getLexeme().length();
+				line = previousToken.getLine();
+			}				
 
 			currentToken = new Token(DOLLAR, "Fim de arquivo", "$", pos);
+			currentToken.setLine(line);
 		}
 
 		int x = ((Integer) stack.pop()).intValue();

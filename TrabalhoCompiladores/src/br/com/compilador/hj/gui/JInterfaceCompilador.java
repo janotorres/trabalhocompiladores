@@ -199,6 +199,7 @@ public class JInterfaceCompilador extends JFrame {
 	}
 
 	private void compilarClicked(ActionEvent e) {
+		jAreaMensagens.setText("");
 		String programaParaCompilar = jEditor.getText();
 		if (programaParaCompilar == null
 				|| programaParaCompilar.trim().equals("")) {
@@ -211,18 +212,6 @@ public class JInterfaceCompilador extends JFrame {
 
 			try {
 				sintatico.parse(lexico, semantico);
-				/*
-				 * Token t = null; jAreaMensagens.setText(fillBlank("linha",20)
-				 * + "  " + fillBlank("classe",20) + "	"+fillBlank("lexema",20)
-				 * + "\n");
-				 * 
-				 * while ((t = lexico.nextToken()) != null) {
-				 * jAreaMensagens.setText(jAreaMensagens.getText() +
-				 * fillBlank(t.getPosition(),20) + "  " +
-				 * fillBlank(t.getClasse(),20) + "	" +
-				 * fillBlank(t.getLexeme(),20) + "\n"); }
-				 */
-
 				jAreaMensagens.setText(jAreaMensagens.getText()
 						+ "\n programa compilado com sucesso");
 			} catch (LexicalError error) {

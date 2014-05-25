@@ -9,11 +9,11 @@ public class Lexico implements Constants {
 	private String input;
 
 	private int linha = 1;
-	
+
 	private int linhaBlocoComentario = 1;
 
 	private int lastPositionQuebraLinha;
-	
+
 	private int lastStateGlobal;
 
 	public Lexico() {
@@ -33,14 +33,13 @@ public class Lexico implements Constants {
 		position = pos;
 	}
 
-
 	public Token nextToken() throws LexicalError {
 		if (!hasInput())
 			return null;
 
 		int start = position;
 		int state = 0;
-		
+
 		int lastState = 0;
 		int endState = -1;
 		int end = -1;
@@ -50,7 +49,7 @@ public class Lexico implements Constants {
 			lastState = state;
 			simbolo = nextChar();
 			state = nextState(simbolo, state);
-			lastStateGlobal =  state;
+			lastStateGlobal = state;
 			if (state < 0)
 				break;
 
@@ -62,13 +61,18 @@ public class Lexico implements Constants {
 			}
 		}
 		if (endState < 0
-				|| (endState != state && tokenForState(lastState) == -2))
-		{
-			if(lastState == 0)
-				throw new LexicalError("Erro na linha " + linha + " - " + simbolo + " " + SCANNER_ERROR_CUSTOMIZED[lastState], start);
+				|| (endState != state && tokenForState(lastState) == -2)) {
+			if (lastState == 0)
+				throw new LexicalError("Erro na linha " + linha + " - "
+						+ simbolo + " " + SCANNER_ERROR_CUSTOMIZED[lastState],
+						start);
 			else
-				
-				throw new LexicalError("Erro na linha " + (lastState == 21 ? linhaBlocoComentario : linha )+ " - "+ SCANNER_ERROR_CUSTOMIZED[lastState], start);
+
+				throw new LexicalError(
+						"Erro na linha "
+								+ (lastState == 21 || lastState == 3 ? linhaBlocoComentario
+										: linha) + " - "
+								+ SCANNER_ERROR_CUSTOMIZED[lastState], start);
 		}
 
 		position = end;
@@ -81,28 +85,28 @@ public class Lexico implements Constants {
 			String lexeme = input.substring(start, end);
 			token = lookupToken(token, lexeme);
 			String classe = null;
-			if (token > 5 && token < 24) {
-				classe = "símbolo especial";
-			} else if (token >= 24) {
-				classe = "palavra reservada";
+			if (token >= 24) {
+				classe = SPECIAL_CASES_KEYS[Arrays.asList(SPECIAL_CASES_VALUES)
+						.indexOf(token)];
 			} else {
 				classe = TOKEN_STATE_KEYS[Arrays.asList(TOKEN_STATE).indexOf(
 						token)];
 			}
 
 			Token novoToken = new Token(token, classe, lexeme, start);
-			novoToken.setLine(lastPositionQuebraLinha < position ? linha : linha -1);
-			return novoToken;			
+			novoToken.setLine(lastPositionQuebraLinha < position ? linha
+					: linha - 1);
+			return novoToken;
 		}
 	}
-	
+
 	private int nextState(char c, int state) {
 		int start = SCANNER_TABLE_INDEXES[state];
 		int end = SCANNER_TABLE_INDEXES[state + 1] - 1;
-		
+
 		while (start <= end) {
-			int half = (start + end) / 2;			
-			
+			int half = (start + end) / 2;
+
 			if (SCANNER_TABLE[half][0] == c)
 				return SCANNER_TABLE[half][1];
 			else if (SCANNER_TABLE[half][0] < c)
@@ -149,14 +153,14 @@ public class Lexico implements Constants {
 	}
 
 	private char nextChar() {
-		if (hasInput()){
+		if (hasInput()) {
 			char c = input.charAt(position++);
-			if (c == '\n' && lastPositionQuebraLinha < position){
+			if (c == '\n' && lastPositionQuebraLinha < position) {
 				lastPositionQuebraLinha = position;
 				linha++;
-				if (lastStateGlobal != 21)
+				if (lastStateGlobal != 21 && lastStateGlobal != 3)
 					linhaBlocoComentario++;
-				
+
 			}
 			return c;
 		} else {
