@@ -55,14 +55,14 @@ public class Sintatico implements Constants {
 					return false;
 				}
 			} else {
-				throw new SyntaticError("Erro na linha " + currentToken.getLine() + " - Encontrado " + currentToken.getClasse() + lexeme + ". " + PARSER_ERROR[x],
+				throw new SyntaticError("Erro na linha " + currentToken.getLine() + " - Encontrado " + currentToken.getClasse() + lexeme + " " + PARSER_ERROR[x],
 						currentToken.getPosition());
 			}
 		} else if (isNonTerminal(x)) {
 			if (pushProduction(x, a))
 				return false;
 			else
-				throw new SyntaticError("Erro na linha " + currentToken.getLine() + " - Encontrado " + currentToken.getClasse() + lexeme + ". " + PARSER_ERROR[x],
+				throw new SyntaticError("Erro na linha " + currentToken.getLine() + " - Encontrado " + currentToken.getClasse() + lexeme + " " + PARSER_ERROR[x],
 						currentToken.getPosition());
 		} else // isSemanticAction(x)
 		{
