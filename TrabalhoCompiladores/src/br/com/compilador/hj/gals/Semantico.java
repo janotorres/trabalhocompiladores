@@ -1,5 +1,7 @@
 package br.com.compilador.hj.gals;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Stack;
 
 import sun.font.LayoutPathImpl.EndType;
@@ -8,11 +10,24 @@ public class Semantico implements Constants {
 
 	private StringBuilder codigo;
 
+	private Classes tipo;
+
 	private Stack<Classes> pilha;
+
+	private Hashtable<String, Classes> tabelaSimbolos;
+
+	private ArrayList<String> identificadores;
+
+	public Semantico() {
+		pilha = new Stack<Classes>();
+		tabelaSimbolos = new Hashtable<String, Classes>();
+		identificadores = new ArrayList<String>();
+	}
 
 	private enum Classes {
 		INT64("int64", "ldc.i8"), FLOAT64("float64", "ldc.i8"), STRING(
-				"string", "ldc.i8"), BOOL("bool", "ldc.i4");
+				"string", "ldc.i8"), BOOL("bool", "ldc.i4"), PROGRAM("program",
+				null);
 
 		private String codigoWrite;
 		private String codigoPilha;
@@ -34,6 +49,9 @@ public class Semantico implements Constants {
 
 	public void executeAction(int action, Token token) throws SemanticError {
 		switch (action) {
+		case 0:
+			action0(token.getLexeme());
+			break;
 		case 1:
 			action1();
 			break;
@@ -97,16 +115,22 @@ public class Semantico implements Constants {
 			// fator positivo, não é necessária uma ação.
 			break;
 		case 24:
+			action24(token.getLexeme());
 			break;
 		case 25:
+			action25(token.getLexeme());
 			break;
 		case 26:
+			action26();
 			break;
 		case 27:
+			action27();
 			break;
 		case 28:
+			action28(token.getLexeme());
 			break;
 		case 29:
+			action29();
 			break;
 		case 30:
 			break;
@@ -134,6 +158,105 @@ public class Semantico implements Constants {
 		}
 
 		System.out.println("Ação #" + action + ", Token: " + token);
+	}
+
+	private void action29() throws SemanticError {
+		String id = identificadores.remove(identificadores.size());
+		if (!tabelaSimbolos.contains(id)) {
+			throw new SemanticError("");
+		}
+
+		tipo = tabelaSimbolos.get(id);
+
+		if (tipo == Classes.PROGRAM) {
+			throw new SemanticError("");
+		}
+
+		Classes tipoPilha = pilha.pop();
+		if (tipo != tipoPilha) {
+			throw new SemanticError("");
+		}
+		codigo.append("stloc " + id + "\n");
+
+	}
+
+	private void action28(String lexeme) throws SemanticError {
+		String id = lexeme;
+		if (!tabelaSimbolos.contains(id)) {
+			throw new SemanticError("");
+		}
+
+		tipo = tabelaSimbolos.get(id);
+
+		if (tipo == Classes.PROGRAM) {
+			throw new SemanticError("");
+		}
+
+		pilha.push(tipo);
+		codigo.append("ldloc " + id + "/n");
+
+	}
+
+	private void action27() throws SemanticError {
+		for (int i = 1; i < identificadores.size(); i++) {
+			String id = identificadores.remove(i);
+			if (!tabelaSimbolos.contains(id)) {
+				throw new SemanticError("");
+			}
+			tipo = tabelaSimbolos.get(id);
+
+			if (tipo == Classes.PROGRAM) {
+				throw new SemanticError("");
+			}
+			// TODO colocar codigos corretos e só adicionar segunda linha se
+			// tipo n for string
+			codigo.append("call string.. Readline())");
+			codigo.append("call tipo ... Parse(string)");
+			;
+			codigo.append("stloc " + id);
+		}
+
+	}
+
+	private void action26() throws SemanticError {
+		for (int i = 1; i < identificadores.size(); i++) {
+			String id = identificadores.remove(i);
+			if (tabelaSimbolos.contains(id)) {
+				throw new SemanticError("");
+			}
+			tabelaSimbolos.put(id, tipo);
+			// TODO verificar se codigo está correto, espeçamento...
+			codigo.append(".locals " + tipo.getCodigoWrite() + " " + id + "/n");
+		}
+
+	}
+
+	private void action25(String lexeme) {
+		identificadores.add(lexeme);
+	}
+
+	private void action24(String lexeme) {
+		switch (lexeme) {
+		case "integer":
+			tipo = Classes.INT64;
+			break;
+		case "float":
+			tipo = Classes.FLOAT64;
+			break;
+		// TODO precisa para bool e string?
+		case "bool":
+			tipo = Classes.BOOL;
+			break;
+		case "string":
+			tipo = Classes.STRING;
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void action0(String lexeme) throws SemanticError {
+		tabelaSimbolos.put(lexeme, Classes.PROGRAM);
 	}
 
 	private void action1() throws SemanticError {
@@ -281,7 +404,7 @@ public class Semantico implements Constants {
 	private void action17() {
 		codigo.append("\n");
 	}
-	
+
 	private void action18() {
 		codigo.append("\n");
 	}
