@@ -18,27 +18,44 @@ public class Semantico implements Constants {
 
 	private ArrayList<String> identificadores;
 
-	public Semantico() {
+	private String operadorRelacional = "";
+
+	private String program;
+
+	public Semantico(String nomePrograma) {
 		pilha = new Stack<Classes>();
 		tabelaSimbolos = new Hashtable<String, Classes>();
 		identificadores = new ArrayList<String>();
+		codigo = new StringBuilder();
+		program = nomePrograma;
+	}
+
+	public String getCodigo() {
+		return codigo.toString();
 	}
 
 	private enum Classes {
-		INT64("int64", "ldc.i8"), FLOAT64("float64", "ldc.i8"), STRING(
-				"string", "ldc.i8"), BOOL("bool", "ldc.i4"), PROGRAM("program",
-				null);
+		INT64("int64", "ldc.i8", "Int64"), FLOAT64("float64", "ldc.i8",
+				"Double"), STRING("string", "ldstr", null), BOOL("bool",
+				"ldc.i4", "Boolean"), PROGRAM("program", null, null);
 
 		private String codigoWrite;
 		private String codigoPilha;
+		private String codigoSystem;
 
-		private Classes(String codigoWrite, String codigoPilha) {
+		private Classes(String codigoWrite, String codigoPilha,
+				String codigoSystem) {
 			this.codigoWrite = codigoWrite;
 			this.codigoPilha = codigoPilha;
+			this.codigoSystem = codigoSystem;
 		}
 
 		public String getCodigoWrite() {
 			return this.codigoWrite;
+		}
+
+		public String getCodigoSystem() {
+			return this.codigoSystem;
 		}
 
 		public String getCodigoPilha() {
@@ -49,9 +66,6 @@ public class Semantico implements Constants {
 
 	public void executeAction(int action, Token token) throws SemanticError {
 		switch (action) {
-		case 0:
-			action0(token.getLexeme());
-			break;
 		case 1:
 			action1();
 			break;
@@ -72,12 +86,6 @@ public class Semantico implements Constants {
 			break;
 		case 7:
 			action7();
-			break;
-		case 8:
-			break;
-		case 9:
-			break;
-		case 10:
 			break;
 		case 11:
 			action11();
@@ -104,12 +112,16 @@ public class Semantico implements Constants {
 			action18();
 			break;
 		case 19:
+			action19();
 			break;
 		case 20:
+			action20(token.getLexeme());
 			break;
 		case 21:
+			action21();
 			break;
 		case 22:
+			action22(token.getLexeme());
 			break;
 		case 23:
 			// fator positivo, não é necessária uma ação.
@@ -124,7 +136,7 @@ public class Semantico implements Constants {
 			action26();
 			break;
 		case 27:
-			action27();
+			action27(token.getLine());
 			break;
 		case 28:
 			action28(token.getLexeme());
@@ -133,6 +145,7 @@ public class Semantico implements Constants {
 			action29();
 			break;
 		case 30:
+			action30(token.getClasse(), token.getLexeme());
 			break;
 		case 31:
 			break;
@@ -144,25 +157,112 @@ public class Semantico implements Constants {
 			break;
 		case 35:
 			break;
-		case 36:
-			break;
-		case 37:
-			break;
-		case 38:
-			break;
-		case 39:
-			break;
-		case 40:
-			break;
-
 		}
 
 		System.out.println("Ação #" + action + ", Token: " + token);
 	}
 
+	private void action30(String lexeme, String classe) throws SemanticError {
+		for (int i = 0; i < identificadores.size(); i++) {
+			String id = identificadores.get(i);
+
+			switch (tipo) {
+			case INT64:
+				if (classe != "constante integer") {
+					throw new SemanticError(
+							"Tipo incompatíveis em comando de atribuição (constante integer, "
+									+ classe + " )");
+				}
+				codigo.append(tipo.getCodigoPilha() + " " + lexeme + "\n");
+				break;
+			case FLOAT64:
+				if (classe != "constante float") {
+					throw new SemanticError(
+							"Tipo incompatíveis em comando de atribuição (constante float, "
+									+ classe + " )");
+				}
+				codigo.append(tipo.getCodigoPilha() + " " + lexeme + "\n");
+				break;
+			case STRING:
+				if (classe != "constante string") {
+					throw new SemanticError(
+							"Tipo incompatíveis em comando de atribuição (constante string, "
+									+ classe + " )");
+				}
+				codigo.append(tipo.getCodigoPilha() + " " + lexeme + "\n");
+				break;
+			case BOOL:
+				if (!classe.equals("TRUE") && !classe.equals("FALSE")) {
+					throw new SemanticError(
+							"Tipo incompatíveis em comando de atribuição (constante lógica, "
+									+ classe + " )");
+				}
+				codigo.append(tipo.getCodigoPilha() + " "
+						+ (lexeme.equals("true") ? ".1" : ".0") + "\n");
+				break;
+			default:
+				break;
+			}
+
+			codigo.append("stloc " + id + "\n");
+		}
+	}
+
+	private void action22(String lexeme) {
+		pilha.push(Classes.STRING);
+		codigo.append(Classes.STRING.getCodigoPilha() + " \"" + lexeme + "\" "
+				+ "\n");
+	}
+
+	private void action21() throws SemanticError {
+
+		Classes tipo1 = pilha.pop();
+		Classes tipo2 = pilha.pop();
+
+		if (tipo1 != tipo2) {
+			throw new SemanticError("");
+		} else {
+			pilha.push(Classes.BOOL);
+		}
+
+		switch (operadorRelacional) {
+		case "==":
+			codigo.append("ceq \n");
+			break;
+		case ">":
+			codigo.append("cgt \n");
+			break;
+		case "<":
+			codigo.append("clt \n");
+			break;
+		case ">=":
+			codigo.append("cgt \n");
+			codigo.append("ldc.i4 0 \n");
+			codigo.append("ceq \n");
+			break;
+		case "<=":
+			codigo.append("clt \n");
+			codigo.append("ldc.i4 0 \n");
+			codigo.append("ceq \n");
+			break;
+		case "!=":
+			codigo.append("ceq \n");
+			codigo.append("ldc.i4 0 \n");
+			codigo.append("ceq \n");
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	private void action20(String lexeme) {
+		operadorRelacional = lexeme;
+	}
+
 	private void action29() throws SemanticError {
-		String id = identificadores.remove(identificadores.size());
-		if (!tabelaSimbolos.contains(id)) {
+		String id = identificadores.remove(identificadores.size() - 1);
+		if (!tabelaSimbolos.containsKey(id)) {
 			throw new SemanticError("");
 		}
 
@@ -182,7 +282,7 @@ public class Semantico implements Constants {
 
 	private void action28(String lexeme) throws SemanticError {
 		String id = lexeme;
-		if (!tabelaSimbolos.contains(id)) {
+		if (!tabelaSimbolos.containsKey(id)) {
 			throw new SemanticError("");
 		}
 
@@ -193,41 +293,49 @@ public class Semantico implements Constants {
 		}
 
 		pilha.push(tipo);
-		codigo.append("ldloc " + id + "/n");
+		codigo.append("ldloc " + id + "\n");
 
 	}
 
-	private void action27() throws SemanticError {
-		for (int i = 1; i < identificadores.size(); i++) {
-			String id = identificadores.remove(i);
-			if (!tabelaSimbolos.contains(id)) {
-				throw new SemanticError("");
+	private void action27(int line) throws SemanticError {
+		for (int i = 0; i < identificadores.size(); i++) {
+			String id = identificadores.get(i);
+			if (!tabelaSimbolos.containsKey(id)) {
+				throw new SemanticError("Erro na linha " + line
+						+ "- identificador (" + id + ") não declarado");
 			}
 			tipo = tabelaSimbolos.get(id);
 
 			if (tipo == Classes.PROGRAM) {
 				throw new SemanticError("");
 			}
-			// TODO colocar codigos corretos e só adicionar segunda linha se
-			// tipo n for string
-			codigo.append("call string.. Readline())");
-			codigo.append("call tipo ... Parse(string)");
-			;
-			codigo.append("stloc " + id);
+
+			codigo.append("call string [mscorlib]System.Console::ReadLine() \n");
+			if (tipo != Classes.STRING) {
+				codigo.append("call " + tipo.getCodigoWrite()
+						+ " [mscorlib]System." + tipo.getCodigoSystem()
+						+ "::Parse(string) \n");
+			}
+			codigo.append("stloc " + id + "\n");
 		}
+
+		identificadores.clear();
 
 	}
 
 	private void action26() throws SemanticError {
-		for (int i = 1; i < identificadores.size(); i++) {
-			String id = identificadores.remove(i);
-			if (tabelaSimbolos.contains(id)) {
+		for (int i = 0; i < identificadores.size(); i++) {
+			String id = identificadores.get(i);
+			if (tabelaSimbolos.containsKey(id)) {
 				throw new SemanticError("");
 			}
 			tabelaSimbolos.put(id, tipo);
 			// TODO verificar se codigo está correto, espeçamento...
-			codigo.append(".locals " + tipo.getCodigoWrite() + " " + id + "/n");
+			codigo.append(".locals (" + tipo.getCodigoWrite() + " " + id
+					+ ") \n");
 		}
+		
+		identificadores.clear();
 
 	}
 
@@ -236,6 +344,7 @@ public class Semantico implements Constants {
 	}
 
 	private void action24(String lexeme) {
+		identificadores.clear();
 		switch (lexeme) {
 		case "integer":
 			tipo = Classes.INT64;
@@ -253,10 +362,6 @@ public class Semantico implements Constants {
 		default:
 			break;
 		}
-	}
-
-	private void action0(String lexeme) throws SemanticError {
-		tabelaSimbolos.put(lexeme, Classes.PROGRAM);
 	}
 
 	private void action1() throws SemanticError {
@@ -386,14 +491,14 @@ public class Semantico implements Constants {
 	private void action14() {
 		Classes tipo = pilha.pop();
 		codigo.append("call void [mscorlib]System.Console::Write("
-				+ tipo.getCodigoWrite() + ")");
+				+ tipo.getCodigoWrite() + ") \n");
 	}
 
 	private void action15() {
-		codigo.append(".assembly extern mscorlib {} \n"
-				+ ".assembly teste_01{} \n" + ".module teste_01.exe \n"
-				+ ".class public teste_01{ \n"
-				+ ".method static public void principal() \n"
+		codigo.append(".assembly extern mscorlib {} \n" + ".assembly "
+				+ program + "{} \n" + ".module " + program + ".exe \n\n"
+				+ ".class public " + program + "{ \n"
+				+ ".method static public void _principal() \n"
 				+ "{ .entrypoint \n");
 	}
 
@@ -402,10 +507,31 @@ public class Semantico implements Constants {
 	}
 
 	private void action17() {
-		codigo.append("\n");
+		codigo.append("ldstr \"\\n\" \n");
+		codigo.append("call void [mscorlib]System.Console::Write(string) \n");
 	}
 
-	private void action18() {
-		codigo.append("\n");
+	private void action18() throws SemanticError {
+		Classes tipo1 = pilha.pop();
+		Classes tipo2 = pilha.pop();
+
+		if (tipo1 == Classes.BOOL && tipo2 == Classes.BOOL) {
+			pilha.push(Classes.BOOL);
+			codigo.append("or \n");
+		} else {
+			throw new SemanticError("Tipos incompatíveis para expressão lógica");
+		}
+	}
+
+	private void action19() throws SemanticError {
+		Classes tipo1 = pilha.pop();
+		Classes tipo2 = pilha.pop();
+
+		if (tipo1 == Classes.BOOL && tipo2 == Classes.BOOL) {
+			pilha.push(Classes.BOOL);
+			codigo.append("and \n");
+		} else {
+			throw new SemanticError("Tipos incompatíveis para expressão lógica");
+		}
 	}
 }

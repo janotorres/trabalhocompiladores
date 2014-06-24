@@ -116,14 +116,15 @@ public class JInterfaceCompilador extends JFrame {
 	}
 
 	private void salvarClicked(ActionEvent e) {
-		if (jBarraStatus.getText().length() < 15) {
+		String textoBarraStatus = jBarraStatus.getText().trim();
+		if (textoBarraStatus.equals("Não modificado")) {
 			final JFileChooser fc = new JFileChooser();
 			int returnVal = fc.showSaveDialog(getParent());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				PrintWriter writer;
 				try {
 					writer = new PrintWriter(fc.getSelectedFile()
-							.getAbsolutePath(), "UTF-8");
+							.getAbsolutePath() + ".txt", "UTF-8");
 
 					String[] line = jEditor.getText().split("\n");
 					for (String eachLine : line)
@@ -133,7 +134,7 @@ public class JInterfaceCompilador extends JFrame {
 
 					jAreaMensagens.setText("");
 					jBarraStatus.setText("Não modificado - "
-							+ fc.getSelectedFile().getAbsolutePath());
+							+ fc.getSelectedFile().getAbsolutePath() + ".txt");
 				} catch (FileNotFoundException | UnsupportedEncodingException e1) {
 					e1.printStackTrace();
 				}
@@ -207,20 +208,24 @@ public class JInterfaceCompilador extends JFrame {
 		} else {
 			Lexico lexico = new Lexico();
 			Sintatico sintatico = new Sintatico();
-			Semantico semantico = new Semantico();
+			String barraStatus = jBarraStatus.getText();
+			String[] nomePrograma = barraStatus.split("\\\\");
+			Semantico semantico = new Semantico(
+					nomePrograma[nomePrograma.length - 1].replace(".txt", ""));
 			lexico.setInput(jEditor.getText());
 
 			try {
 				sintatico.parse(lexico, semantico);
-				jAreaMensagens.setText(jAreaMensagens.getText()
-						+ "\n programa compilado com sucesso");
+				jAreaMensagens.setText("programa compilado com sucesso");
 			} catch (LexicalError error) {
 				jAreaMensagens.setText(error.getMessage());
 			} catch (SyntaticError error) {
 				jAreaMensagens.setText(error.getMessage());
 			} catch (SemanticError error) {
-				throw new NotImplementedException();
+				error.printStackTrace();
+				jAreaMensagens.setText(error.getMessage());
 			}
+
 		}
 	}
 
@@ -233,7 +238,47 @@ public class JInterfaceCompilador extends JFrame {
 	}
 
 	private void gerarCodigoClicked(ActionEvent e) {
-		jAreaMensagens.setText(" geração de código ainda não foi implementada");
+		jAreaMensagens.setText("");
+		String programaParaCompilar = jEditor.getText();
+		if (programaParaCompilar == null
+				|| programaParaCompilar.trim().equals("")) {
+			jAreaMensagens.setText("nenhum programa para compilar");
+		} else {
+			Lexico lexico = new Lexico();
+			Sintatico sintatico = new Sintatico();
+			String barraStatus = jBarraStatus.getText();
+			String[] nomePrograma = barraStatus.split("\\\\");
+			Semantico semantico = new Semantico(
+					nomePrograma[nomePrograma.length - 1].replace(".txt", ""));
+			lexico.setInput(jEditor.getText());
+
+			try {
+				sintatico.parse(lexico, semantico);
+				jAreaMensagens.setText("código objeto gerado com sucesso");
+				PrintWriter writer;
+				try {
+					String path = barraStatus.substring(
+							barraStatus.indexOf("-") + 2).replace("txt", "il");
+
+					writer = new PrintWriter(path, "UTF-8");
+					String[] line = semantico.getCodigo().split("\n");
+					for (String eachLine : line)
+						writer.println(eachLine);
+
+					writer.close();
+				} catch (FileNotFoundException | UnsupportedEncodingException e1) {
+					e1.printStackTrace();
+				}
+			} catch (LexicalError error) {
+				jAreaMensagens.setText(error.getMessage());
+			} catch (SyntaticError error) {
+				jAreaMensagens.setText(error.getMessage());
+			} catch (SemanticError error) {
+				error.printStackTrace();
+				jAreaMensagens.setText(error.getMessage());
+			}
+
+		}
 	}
 
 	private void equipeClicked(ActionEvent e) {
