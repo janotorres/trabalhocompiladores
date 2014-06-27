@@ -1,7 +1,9 @@
 package br.com.compilador.hj.gals;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Stack;
 
 import sun.font.LayoutPathImpl.EndType;
@@ -14,6 +16,10 @@ public class Semantico implements Constants {
 
 	private Stack<Classes> pilha;
 
+	private Stack<String> pilhaRotulos;
+
+	private int contadorRotulos;
+
 	private Hashtable<String, Classes> tabelaSimbolos;
 
 	private ArrayList<String> identificadores;
@@ -21,6 +27,8 @@ public class Semantico implements Constants {
 	private String operadorRelacional = "";
 
 	private String program;
+	
+	private int contadorAtribuicao;
 
 	public Semantico(String nomePrograma) {
 		pilha = new Stack<Classes>();
@@ -28,6 +36,9 @@ public class Semantico implements Constants {
 		identificadores = new ArrayList<String>();
 		codigo = new StringBuilder();
 		program = nomePrograma;
+		pilhaRotulos = new Stack<String>();
+		contadorRotulos = 0;
+		contadorAtribuicao = 0;
 	}
 
 	public String getCodigo() {
@@ -148,23 +159,69 @@ public class Semantico implements Constants {
 			action30(token.getClasse(), token.getLexeme());
 			break;
 		case 31:
+			action31();
 			break;
 		case 32:
+			action32();
 			break;
 		case 33:
+			action33();
 			break;
 		case 34:
+			action34();
 			break;
 		case 35:
+			action35();
 			break;
 		}
 
 		System.out.println("Ação #" + action + ", Token: " + token);
 	}
 
-	private void action30(String lexeme, String classe) throws SemanticError {
-		for (int i = 0; i < identificadores.size(); i++) {
-			String id = identificadores.get(i);
+	private void action35() {
+		// TODO verificacao de tipos?
+		String rotulo = pilhaRotulos.pop();
+		codigo.append("brtrue " + rotulo + "\n");
+		
+	}
+
+	private void action34() {
+		// TODO verificacao de tipos?
+		String rotulo = "r" + contadorRotulos++;
+		codigo.append(rotulo + ": \n");
+		pilhaRotulos.push(rotulo);
+	}
+
+	private void action33() {
+		String rotulo = pilhaRotulos.pop();
+		String rotuloBr = "r" + contadorRotulos++;
+		pilhaRotulos.push(rotuloBr);
+
+		// TODO verificacao de tipos?
+		codigo.append("br " + rotuloBr + "\n");
+		codigo.append(rotulo + ": \n");
+
+	}
+
+	private void action32() {
+		// TODO verificacao de tipos?
+		codigo.append(pilhaRotulos.pop() + ": \n");
+
+	}
+
+	private void action31() {
+		// TODO verificacao de tipos?
+		String rotulo = "r" + contadorRotulos++;
+		pilhaRotulos.push(rotulo);
+		codigo.append("brfalse " + rotulo + "\n");
+
+	}
+
+	private void action30(String lexeme, String classe) throws SemanticError {		
+		List<String> identificadoresReconhecidos = Collections.list(tabelaSimbolos.keys());
+		int sizeTabelaSimbolos = tabelaSimbolos.size();
+		for (int i = sizeTabelaSimbolos -1; i != (sizeTabelaSimbolos - contadorAtribuicao); i--) {
+			String id = identificadoresReconhecidos.get(i);
 
 			switch (tipo) {
 			case INT64:
@@ -210,8 +267,7 @@ public class Semantico implements Constants {
 
 	private void action22(String lexeme) {
 		pilha.push(Classes.STRING);
-		codigo.append(Classes.STRING.getCodigoPilha() + " \"" + lexeme + "\" "
-				+ "\n");
+		codigo.append(Classes.STRING.getCodigoPilha() + " " + lexeme +  "\n");
 	}
 
 	private void action21() throws SemanticError {
@@ -333,8 +389,9 @@ public class Semantico implements Constants {
 			// TODO verificar se codigo está correto, espeçamento...
 			codigo.append(".locals (" + tipo.getCodigoWrite() + " " + id
 					+ ") \n");
+			contadorAtribuicao++;
 		}
-		
+
 		identificadores.clear();
 
 	}
