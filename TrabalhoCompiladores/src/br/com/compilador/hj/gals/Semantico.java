@@ -29,9 +29,9 @@ public class Semantico implements Constants {
 	private String program;
 
 	private int contadorAtribuicao;
-	
+
 	private int line;
-	
+
 	private String lexeme;
 
 	public Semantico(String nomePrograma) {
@@ -90,9 +90,11 @@ public class Semantico implements Constants {
 	}
 
 	public void executeAction(int action, Token token) throws SemanticError {
-		this.line = token.getLine();
-		this.lexeme = token.getLexeme();
-		
+		if (token != null) {
+			this.line = token.getLine();
+			this.lexeme = token.getLexeme();
+		}
+
 		switch (action) {
 		case 1:
 			action1();
@@ -204,23 +206,24 @@ public class Semantico implements Constants {
 			} else if (termo2.equals(Classes.FLOAT64)) {
 				pilha.push(Classes.FLOAT64);
 			} else {
-				throw new SemanticError(getMessageLine() + 
-						"tipos incompatíveis em comando de soma ("
-								+ termo1.getNomeTipo() + ", "
-								+ termo2.getNomeTipo() + ").");
+				throw new SemanticError(getMessageLine()
+						+ "tipos incompatíveis em comando de soma ("
+						+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo()
+						+ ").");
 			}
 		} else if (termo1.equals(Classes.FLOAT64)) {
 			if ((termo2.equals(Classes.INT64))
 					|| (termo2.equals(Classes.FLOAT64))) {
 				pilha.push(Classes.FLOAT64);
 			} else {
-				throw new SemanticError(getMessageLine() + 
-						"tipos incompatíveis em comando de soma ("
-								+ termo1.getNomeTipo() + ", "
-								+ termo2.getNomeTipo() + ").");
+				throw new SemanticError(getMessageLine()
+						+ "tipos incompatíveis em comando de soma ("
+						+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo()
+						+ ").");
 			}
 		} else {
-			throw new SemanticError(getMessageLine() + "tipos incompatíveis em comando de soma ("
+			throw new SemanticError(getMessageLine()
+					+ "tipos incompatíveis em comando de soma ("
 					+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo() + ").");
 		}
 		codigo.append("add\n");
@@ -235,26 +238,25 @@ public class Semantico implements Constants {
 			} else if (termo2.equals(Classes.FLOAT64)) {
 				pilha.push(Classes.FLOAT64);
 			} else {
-				throw new SemanticError(getMessageLine() + 
-						"tipos incompatíveis em comando de subtração ("
-								+ termo1.getNomeTipo() + ", "
-								+ termo2.getNomeTipo() + ").");
+				throw new SemanticError(getMessageLine()
+						+ "tipos incompatíveis em comando de subtração ("
+						+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo()
+						+ ").");
 			}
 		} else if (termo1.equals(Classes.FLOAT64)) {
 			if ((termo2.equals(Classes.INT64))
 					|| (termo2.equals(Classes.FLOAT64))) {
 				pilha.push(Classes.FLOAT64);
 			} else {
-				throw new SemanticError(getMessageLine() + 
-						"tipos incompatíveis em comando de subtração ("
-								+ termo1.getNomeTipo() + ", "
-								+ termo2.getNomeTipo() + ").");
+				throw new SemanticError(getMessageLine()
+						+ "tipos incompatíveis em comando de subtração ("
+						+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo()
+						+ ").");
 			}
 		} else {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em comando de subtração ("
-							+ termo1.getNomeTipo() + ", "
-							+ termo2.getNomeTipo() + ").");
+			throw new SemanticError(getMessageLine()
+					+ "tipos incompatíveis em comando de subtração ("
+					+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo() + ").");
 		}
 		codigo.append("sub\n");
 	}
@@ -268,26 +270,25 @@ public class Semantico implements Constants {
 			} else if (termo2.equals(Classes.FLOAT64)) {
 				pilha.push(Classes.FLOAT64);
 			} else {
-				throw new SemanticError(getMessageLine() + 
-						"tipos incompatíveis em comando de multiplicação ("
-								+ termo1.getNomeTipo() + ", "
-								+ termo2.getNomeTipo() + ").");
+				throw new SemanticError(getMessageLine()
+						+ "tipos incompatíveis em comando de multiplicação ("
+						+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo()
+						+ ").");
 			}
 		} else if (termo1.equals(Classes.FLOAT64)) {
 			if ((termo2.equals(Classes.INT64))
 					|| (termo2.equals(Classes.FLOAT64))) {
 				pilha.push(Classes.FLOAT64);
 			} else {
-				throw new SemanticError(getMessageLine() + 
-						"tipos incompatíveis em comando de multiplicação ("
-								+ termo1.getNomeTipo() + ", "
-								+ termo2.getNomeTipo() + ").");
+				throw new SemanticError(getMessageLine()
+						+ "tipos incompatíveis em comando de multiplicação ("
+						+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo()
+						+ ").");
 			}
 		} else {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em comando de multiplicação ("
-							+ termo1.getNomeTipo() + ", "
-							+ termo2.getNomeTipo() + ").");
+			throw new SemanticError(getMessageLine()
+					+ "tipos incompatíveis em comando de multiplicação ("
+					+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo() + ").");
 		}
 		codigo.append("mul\n");
 	}
@@ -299,10 +300,9 @@ public class Semantico implements Constants {
 			pilha.push(termo1);
 			codigo.append("div\n");
 		} else {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em comando de divisão ("
-							+ termo1.getNomeTipo() + ", "
-							+ termo2.getNomeTipo() + ").");
+			throw new SemanticError(getMessageLine()
+					+ "tipos incompatíveis em comando de divisão ("
+					+ termo1.getNomeTipo() + ", " + termo2.getNomeTipo() + ").");
 		}
 	}
 
@@ -325,8 +325,9 @@ public class Semantico implements Constants {
 			codigo.append(Classes.INT64.getCodigoPilha() + " -1\n");
 			codigo.append("mul\n");
 		} else {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em expressão aritmética. Esperada constante integer ou constante float, encontrada "
+			throw new SemanticError(
+					getMessageLine()
+							+ "tipos incompatíveis em expressão aritmética. Esperada constante integer ou constante float, encontrada "
 							+ tipoPilha.getNomeTipo());
 		}
 	}
@@ -351,8 +352,9 @@ public class Semantico implements Constants {
 			codigo.append(Classes.BOOL.getCodigoPilha() + ".1\n");
 			codigo.append("xor\n");
 		} else {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompátiveis em expressão lógica. Esperada constante lógica, encontrada "
+			throw new SemanticError(
+					getMessageLine()
+							+ "tipos incompátiveis em expressão lógica. Esperada constante lógica, encontrada "
 							+ tipo.getNomeTipo());
 		}
 	}
@@ -385,13 +387,15 @@ public class Semantico implements Constants {
 		Classes tipo2 = pilha.pop();
 
 		if (tipo1 != Classes.BOOL) {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
+			throw new SemanticError(
+					getMessageLine()
+							+ "tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
 							+ tipo1.getNomeTipo());
 		}
 		if (tipo2 != Classes.BOOL) {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
+			throw new SemanticError(
+					getMessageLine()
+							+ "tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
 							+ tipo2.getNomeTipo());
 		}
 
@@ -404,13 +408,15 @@ public class Semantico implements Constants {
 		Classes tipo2 = pilha.pop();
 
 		if (tipo1 != Classes.BOOL) {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
+			throw new SemanticError(
+					getMessageLine()
+							+ "tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
 							+ tipo1.getNomeTipo());
 		}
 		if (tipo2 != Classes.BOOL) {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
+			throw new SemanticError(
+					getMessageLine()
+							+ "tipos incompatíveis em expressão lógica. Esperada constante lógica, encontrada "
 							+ tipo2.getNomeTipo());
 		}
 		pilha.push(Classes.BOOL);
@@ -425,11 +431,10 @@ public class Semantico implements Constants {
 		Classes tipo1 = pilha.pop();
 		Classes tipo2 = pilha.pop();
 
-		if (tipo1 != tipo2) {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis entre operador relacional ("
-							+ tipo1.getNomeTipo() + "," + tipo2.getNomeTipo()
-							+ ")");
+		if (tipo1 != tipo2 || (tipo1 == Classes.BOOL || tipo2 == Classes.BOOL)) {
+			throw new SemanticError(getMessageLine()
+					+ "tipos incompatíveis em expressãor relacional ("
+					+ tipo1.getNomeTipo() + "," + tipo2.getNomeTipo() + ")");
 		} else {
 			pilha.push(Classes.BOOL);
 		}
@@ -479,7 +484,7 @@ public class Semantico implements Constants {
 		case "float":
 			tipo = Classes.FLOAT64;
 			break;
-		case "bool":
+		case "boolean":
 			tipo = Classes.BOOL;
 			break;
 		case "string":
@@ -498,8 +503,8 @@ public class Semantico implements Constants {
 		for (int i = 0; i < identificadores.size(); i++) {
 			String id = identificadores.get(i);
 			if (tabelaSimbolos.containsKey(id)) {
-				throw new SemanticError(getMessageLine() + "identificador (" + id
-						+ ") já declarado.");
+				throw new SemanticError(getMessageLine() + "identificador ("
+						+ id + ") já declarado.");
 			}
 			tabelaSimbolos.put(id, tipo);
 			codigo.append(".locals (" + tipo.getCodigoWrite() + " " + id
@@ -513,10 +518,15 @@ public class Semantico implements Constants {
 		for (int i = 0; i < identificadores.size(); i++) {
 			String id = identificadores.get(i);
 			if (!tabelaSimbolos.containsKey(id)) {
-				throw new SemanticError(getMessageLine() + 
-						"identificador (" + id + ") não declarado");
+				throw new SemanticError(getMessageLine() + "identificador ("
+						+ id + ") não declarado");
 			}
 			tipo = tabelaSimbolos.get(id);
+			if (tipo == Classes.BOOL) {
+				throw new SemanticError(
+						getMessageLine()
+								+ "Não é permitida constante lógica em comando de entrada.");
+			}
 
 			codigo.append("call string [mscorlib]System.Console::ReadLine() \n");
 			if (tipo != Classes.STRING) {
@@ -533,7 +543,8 @@ public class Semantico implements Constants {
 	private void action28() throws SemanticError {
 		String id = lexeme;
 		if (!tabelaSimbolos.containsKey(id)) {
-			throw new SemanticError(getMessageLine() + "identificador (" + id + ") não declarado");
+			throw new SemanticError(getMessageLine() + "identificador (" + id
+					+ ") não declarado");
 		}
 
 		tipo = tabelaSimbolos.get(id);
@@ -546,17 +557,18 @@ public class Semantico implements Constants {
 	private void action29() throws SemanticError {
 		String id = identificadores.remove(identificadores.size() - 1);
 		if (!tabelaSimbolos.containsKey(id)) {
-			throw new SemanticError(getMessageLine() + "identificador (" + id + ") não declarado");
+			throw new SemanticError(getMessageLine() + "identificador (" + id
+					+ ") não declarado");
 		}
 
 		tipo = tabelaSimbolos.get(id);
 
 		Classes tipoPilha = pilha.pop();
 		if (tipo != tipoPilha) {
-			throw new SemanticError(getMessageLine() + 
-					"tipos incompatíveis em comando de atribuição ("
-							+ tipo.getNomeTipo() + ","
-							+ tipoPilha.getCodigoPilha() + ")");
+			throw new SemanticError(getMessageLine()
+					+ "tipos incompatíveis em comando de atribuição ("
+					+ tipo.getNomeTipo() + "," + tipoPilha.getNomeTipo()
+					+ ")");
 		}
 		codigo.append("stloc " + id + "\n");
 
@@ -569,18 +581,36 @@ public class Semantico implements Constants {
 		for (int i = sizeTabelaSimbolos - 1; i > (sizeTabelaSimbolos - contadorAtribuicao) - 1; i--) {
 			String id = identificadoresReconhecidos.get(i);
 
-			if (classe != tipo.getCodigoPilha()) {
-				throw new SemanticError(getMessageLine() + 
-						"tipo incompatíveis em comando de atribuição ("
-								+ tipo.getCodigoPilha() + "," + classe + ")");
+			String nomeTipo = tipo.getNomeTipo();
+			if (nomeTipo.equals(Classes.BOOL.getNomeTipo())) {
+				if (!classe.equals("TRUE") && !classe.equals("FALSE")) {
+					throw new SemanticError(getMessageLine()
+							+ "tipo incompatíveis em comando de atribuição ("
+							+ nomeTipo + "," + classe + ")");
+				}
+			} else if (!classe.equals(nomeTipo)) {
+				throw new SemanticError(
+						getMessageLine()
+								+ "tipo incompatíveis em comando de atribuição ("
+								+ nomeTipo
+								+ ","
+								+ (classe.equals("TRUE")
+										|| classe.equals("FALSE") ? Classes.BOOL
+										.getNomeTipo() : classe) + ")");
 			}
 			codigo.append(tipo.getCodigoPilha() + " " + lexeme + "\n");
 			codigo.append("stloc " + id + "\n");
 		}
 	}
 
-	private void action31() {
-		// TODO verificacao de tipos?
+	private void action31() throws SemanticError {
+		Classes tipoPilha = pilha.pop();
+		pilha.push(tipoPilha);
+		
+		if (tipoPilha != Classes.BOOL) {
+			throw new SemanticError(getMessageLine() + "tipos incompatíveis no comando de seleção. Esperada " + Classes.BOOL.getNomeTipo() + ", encontrada " + tipoPilha.getNomeTipo());
+		}		
+		
 		String rotulo = "r" + contadorRotulos++;
 		pilhaRotulos.push(rotulo);
 		codigo.append("brfalse " + rotulo + "\n");
@@ -588,9 +618,7 @@ public class Semantico implements Constants {
 	}
 
 	private void action32() {
-		// TODO verificacao de tipos?
 		codigo.append(pilhaRotulos.pop() + ": \n");
-
 	}
 
 	private void action33() {
@@ -609,14 +637,18 @@ public class Semantico implements Constants {
 		pilhaRotulos.push(rotulo);
 	}
 
-	private void action35() {
-		// TODO verificacao de tipos?
+	private void action35() throws SemanticError {
+		Classes tipoPilha = pilha.pop();
+		pilha.push(tipoPilha);
+		
+		if (tipoPilha != Classes.BOOL) {
+			throw new SemanticError(getMessageLine() + "tipos incompatíveis no comando de repetição. Esperada " + Classes.BOOL.getNomeTipo() + ", encontrada " + tipoPilha.getNomeTipo());
+		}
 		String rotulo = pilhaRotulos.pop();
 		codigo.append("brtrue " + rotulo + "\n");
 	}
-	
-	private String getMessageLine()
-	{
-		return "Erro na linha" + line + " - ";
+
+	private String getMessageLine() {
+		return "Erro na linha " + line + " - ";
 	}
 }
